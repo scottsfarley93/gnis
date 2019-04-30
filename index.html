@@ -52,8 +52,12 @@
       href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.css"
       type="text/css"
     />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
     <link href="https://api.mapbox.com/mapbox-assembly/v0.23.2/assembly.min.css" rel="stylesheet">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/themes/red/pace-theme-loading-bar.min.css" rel='stylesheet' />
+    <div id='loading' class='h-full w-full bg-red'>
+        Please wait... 
+    </div>
     <div id="map"></div>
     <div class="calculation-box">
       <p class='txt py12'>Draw a polygon to select features</p>
@@ -67,6 +71,7 @@
     function main(){
         getData()   
             .then((data)=>{
+                console.log("app is open for business")
                 IS_LOADING = false;
                 map.on('draw.create', (evt)=>{
                     handleExtraction(data);
@@ -117,7 +122,7 @@
 
       function getData(){
         return new Promise((resolve, reject)=>{
-            const location = "./natural_features.csv";
+            const location = "./natural_features_2.csv";
             fetch(location)
                 .then((resp)=>{
                     return resp.text();
@@ -135,7 +140,8 @@
 
       function toGeojson(pdt){
         let data = pdt.split("\n").map((line)=>{
-            const featureData = line.split(',')
+        try{
+          const featureData = line.split(',')
             return {
                 type: 'Feature',
                 geometry: {
@@ -149,9 +155,13 @@
                     map: featureData[5].replace(/(\r\n|\n|\r)/gm, "")
                 }
             }
+            }catch(err){
+                return
+            }
+  
         });
         data = data.filter((ft)=>{
-            return !isNaN(ft.geometry.coordinates[0]) && !isNaN(ft.geometry.coordinates[1])
+            return ft && !isNaN(ft.geometry.coordinates[0]) && !isNaN(ft.geometry.coordinates[1])
         })
         return data;
       }
@@ -177,10 +187,10 @@
       }
 
       function toCSV(data){
-          let csvOut = "map,category,state,featureName,longitude,latitude\n"
+          let csvOut = "featureName,category,state,map,longitude,latitude\n"
           data.features.forEach((feature)=>{
 
-              csvOut += `${feature.properties.map},${feature.properties.category},${feature.properties.state},${feature.properties.featureName},${feature.geometry.coordinates[0]},${feature.geometry.coordinates[1]}\n`;
+              csvOut += `${feature.properties.featureName},${feature.properties.category},${feature.properties.state},${feature.properties.map},${feature.geometry.coordinates[0]},${feature.geometry.coordinates[1]}\n`;
           });
           return csvOut;
       }

@@ -1,8 +1,10 @@
 from pprint import pprint
-READ_FILE = "./allfeatures.txt"
-WRITE_FILE = "./nature_features_2.py"
+READ_FILE = "./names.txt"
+WRITE_FILE = "./natural_features_2.csv"
 
 allowed_categories = {
+    'Populated Place': None,
+    'Mine': None,
  'Arch': 720,
  'Arroyo': 466,
  'Bar': 5874,

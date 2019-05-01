@@ -8,6 +8,7 @@
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
     <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js"></script>
+    <script src='./rect-mode.js'></script> 
     <link
       href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.css"
       rel="stylesheet"
@@ -108,15 +109,19 @@
         map.addLayer({id:'gnis', type:'circle', source: 'gnis', paint: {'circle-color': 'red', 'circle-radius': 3}})
       })
 
+    var modes = MapboxDraw.modes;
+    // modes.draw_rectangle = DrawRectangle.default;
 
-      var draw = new MapboxDraw({
+    var draw = new MapboxDraw({
         displayControlsDefault: false,
         controls: {
           polygon: true,
           trash: true
-        }
+        },
+        modes: modes
       });
       map.addControl(draw);
+      // draw.changeMode('draw_rectangle');
 
       function getData(){
         return new Promise((resolve, reject)=>{

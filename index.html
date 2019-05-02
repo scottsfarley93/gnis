@@ -125,15 +125,35 @@
 
       function getData(){
         return new Promise((resolve, reject)=>{
-            const location = "./natural_features_2.csv";
-            fetch(location)
+            const locations = ["./natural_features_2.csv", './canada_processed.csv'];
+            const loadOps = [];
+          locations.forEach((location)=>{
+            const io = loadFeatureFile(location);
+            loadOps.push(io);
+            console.log(location)
+          })
+          Promise.all(loadOps)
+            .then((featureArrays)=>{
+              const allFeatures = {type: 'FeatureCollection', features: featureArrays.flat()}
+              console.log(allFeatures)
+              return resolve(allFeatures)
+            })
+            .catch((err)=>{
+              console.error(err)
+            })
+        })
+      }
+
+      function loadFeatureFile(fileLocation){
+        return new Promise((resolve, reject)=>{
+          fetch(fileLocation)
                 .then((resp)=>{
                     return resp.text();
                 })
                 .then((data)=>{
                     const geojson = toGeojson(data);
-                    const featureSet = {type:'FeatureCollection', features: geojson};
-                    return resolve(featureSet);
+                    console.log(geojson)
+                    return resolve(geojson);
                 })
                 .catch((err)=>{
                     return reject(err);
@@ -154,11 +174,10 @@
                 properties: {
                     featureName: featureData[0].replace(/(\r\n|\n|\r)/gm, ""),
                     state: featureData[2].replace(/(\r\n|\n|\r)/gm, ""),
-                    category: featureData[1].replace(/(\r\n|\n|\r)/gm, ""),
-                    map: featureData[5].replace(/(\r\n|\n|\r)/gm, "")
-                }
+                    category: featureData[1].replace(/(\r\n|\n|\r)/gm, "")                }
             }
             }catch(err){
+              console.log(err)
                 return
             }
   
